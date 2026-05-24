@@ -2,7 +2,7 @@
 
 namespace ArchitecutreMachin.Models.CarFeatures
 {
-    public class CarFeatureSelectDto : BaseDto
+    public class CarFeatureSelectDto 
     {
         public string Color { get; set; } 
         public string Title { get; set; }

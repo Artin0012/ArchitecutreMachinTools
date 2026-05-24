@@ -12,8 +12,8 @@ using _2.Application.Context;
 namespace _2.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260222082103_AddColorToCarFeature")]
-    partial class AddColorToCarFeature
+    [Migration("20260510073622_MachinValue")]
+    partial class MachinValue
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace _2.Application.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("CarCarFeature", b =>
+                {
+                    b.Property<int>("CarsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FeaturesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CarsId", "FeaturesId");
+
+                    b.HasIndex("FeaturesId");
+
+                    b.ToTable("CarFeatureMappings", (string)null);
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -189,9 +204,6 @@ namespace _2.Application.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CarId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -207,8 +219,6 @@ namespace _2.Application.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CarId");
 
                     b.ToTable("Features");
                 });
@@ -282,6 +292,21 @@ namespace _2.Application.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("CarCarFeature", b =>
+                {
+                    b.HasOne("_2.Application.Entities.Car", null)
+                        .WithMany()
+                        .HasForeignKey("CarsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("_2.Application.Entities.CarFeature", null)
+                        .WithMany()
+                        .HasForeignKey("FeaturesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -342,22 +367,6 @@ namespace _2.Application.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("_2.Application.Entities.CarFeature", b =>
-                {
-                    b.HasOne("_2.Application.Entities.Car", "Car")
-                        .WithMany("Features")
-                        .HasForeignKey("CarId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Car");
-                });
-
-            modelBuilder.Entity("_2.Application.Entities.Car", b =>
-                {
-                    b.Navigation("Features");
                 });
 
             modelBuilder.Entity("_2.Application.Entities.User", b =>

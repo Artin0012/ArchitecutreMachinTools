@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace _2.Application.Migrations
 {
     /// <inheritdoc />
-    public partial class AuthenticationUser : Migration
+    public partial class MachinValue : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -49,6 +49,22 @@ namespace _2.Application.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Features",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Color = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rank = table.Column<int>(type: "int", nullable: false),
+                    HealthyBody = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Features", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -178,23 +194,25 @@ namespace _2.Application.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Features",
+                name: "CarFeatureMappings",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rank = table.Column<int>(type: "int", nullable: false),
-                    HealthyBody = table.Column<int>(type: "int", nullable: false),
-                    CarId = table.Column<int>(type: "int", nullable: false)
+                    CarsId = table.Column<int>(type: "int", nullable: false),
+                    FeaturesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Features", x => x.Id);
+                    table.PrimaryKey("PK_CarFeatureMappings", x => new { x.CarsId, x.FeaturesId });
                     table.ForeignKey(
-                        name: "FK_Features_Cars_CarId",
-                        column: x => x.CarId,
+                        name: "FK_CarFeatureMappings_Cars_CarsId",
+                        column: x => x.CarsId,
                         principalTable: "Cars",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CarFeatureMappings_Features_FeaturesId",
+                        column: x => x.FeaturesId,
+                        principalTable: "Features",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -239,14 +257,14 @@ namespace _2.Application.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CarFeatureMappings_FeaturesId",
+                table: "CarFeatureMappings",
+                column: "FeaturesId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Cars_UserId",
                 table: "Cars",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Features_CarId",
-                table: "Features",
-                column: "CarId");
         }
 
         /// <inheritdoc />
@@ -268,13 +286,16 @@ namespace _2.Application.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Features");
+                name: "CarFeatureMappings");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Cars");
+
+            migrationBuilder.DropTable(
+                name: "Features");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

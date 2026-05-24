@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using _2.Application.Entities;
+using ArchitecutreMachin.Models.Base;
+using System.ComponentModel.DataAnnotations;
 
 namespace ArchitecutreMachin.Models.CarFeatures
 {
-    public class CarFeatureDto
+    public class CarFeatureDto 
     {
         public string Color { get; set; }
         [Required]

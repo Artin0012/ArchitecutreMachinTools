@@ -5,7 +5,7 @@
 namespace _2.Application.Migrations
 {
     /// <inheritdoc />
-    public partial class AuthenticationMachin : Migration
+    public partial class FixManyToManyRelation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

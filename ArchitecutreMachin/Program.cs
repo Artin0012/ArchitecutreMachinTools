@@ -5,17 +5,35 @@ using _2.Application.Repositories.Interfaces;
 using _3.Infrastructure.Repository;
 using _3.Infrastructure.Services;
 using ArchitecutreMachin.Profiles;
+using ArchitecutreMachins.Middleware;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+//using ArchitecutreMachin.Features.Cars.Commands;,
 
+// SeriLog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(
+    "Logs/log-.txt",
+    rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
-
+// WebApplication
 var builder = WebApplication.CreateBuilder(args);
+
+// cfg Serilog
+builder.Host.UseSerilog();
 
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -34,11 +52,26 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<ICarRepository, CarRepository>();
 builder.Services.AddScoped<ICarFeatureRepository, CarFeatureRepository>();
 
+////MediatR
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(
+        Assembly.Load("ArchitecutreMachins"));
+});
+
+//Register FluentValidation
+builder.Services.AddValidatorsFromAssembly(
+    Assembly.Load("ArchitecutreMachins"));
+
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Controllers
 builder.Services.AddControllers();
+
+// Fluent
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddHttpContextAccessor();
 
 // JWT
 builder.Services.AddScoped<JwtService>();
@@ -67,6 +100,7 @@ builder.Services.AddAuthentication(options =>
         RoleClaimType = ClaimTypes.Role
     };
 });
+
 
 // swagger security
 builder.Services.AddEndpointsApiExplorer();
@@ -123,6 +157,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

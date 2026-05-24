@@ -15,8 +15,10 @@ namespace _2.Application.Entities
 
         [Required]
         public string Title { get; set; }
+        
         [Required]
         public int Rank { get; set; }
+        
         [Range(0, 100)]
         public int HealthyBody { get; set; }
 
