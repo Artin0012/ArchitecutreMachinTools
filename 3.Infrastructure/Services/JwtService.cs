@@ -12,16 +12,11 @@ using System.Threading.Tasks;
 
 namespace _3.Infrastructure.Services
 {
-    public class JwtService : IJwtService
+    public class JwtService(IConfiguration configuration, UserManager<User> userManager) : IJwtService
     {
-        private readonly IConfiguration _configuration;
-        private readonly UserManager<User> _userManager;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly UserManager<User> _userManager = userManager;
 
-        public JwtService(IConfiguration configuration, UserManager<User> userManager)
-        {
-            _configuration = configuration;
-            _userManager = userManager;
-        }
         public string GenerateToken(User user)
         {
             var roles = _userManager.GetRolesAsync(user).Result;
@@ -41,6 +36,7 @@ namespace _3.Infrastructure.Services
             var key = new SymmetricSecurityKey(
 
                 Encoding.ASCII.GetBytes(_configuration["Authentication:SecretForKey"]));
+
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

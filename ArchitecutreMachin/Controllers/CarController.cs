@@ -3,85 +3,134 @@ using _2.Application.Entities;
 using _2.Application.Repositories.Interfaces;
 using ArchitecutreMachin.Models;
 using ArchitecutreMachin.Models.Cars;
-using ArchitecutreMachins.Features.Commands.DeleteCar;
-using ArchitecutreMachins.Features.Queries.GetAllCars;
-using ArchitecutreMachins.Features.Queries.GetCarById;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using ArchitecutreMachins.Features.Commands.CreateCars;
-using ArchitecutreMachins.Features.Commands.UpdateCar;
+using ArchitecutreMachins.Models.Pagination;
 
 namespace ArchitecutreMachin.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
-    public class CarController : ControllerBase
+    public class CarController(IGenericRepository<Car> repository, IMapper mapper, IGenericRepository<CarFeature> featureRepo) :
+        BaseController<Car, CarDto, CarSelectDto>(repository, mapper)
     {
-        private readonly IMediator _mediator;
-
-        public CarController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        private readonly IGenericRepository<CarFeature> _FeatureRepo = featureRepo;
+        private string CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         [HttpPost]
-
-        public async Task<IActionResult> Create(CreateCarCommand command)
+        public override async Task<IActionResult> Create(CarDto dto)
         {
-            var result = await _mediator.Send(command);
+            if (CurrentUserId == null)
+                return Unauthorized();
 
-            return Ok(result);
+            var car = _mapper.Map<Car>(dto);
+            car.UserId = CurrentUserId;
+
+            var features = await _FeatureRepo
+                .GetQueryable()
+                .Where(f => dto.FeatureIds.Contains(f.Id))
+                .ToListAsync();
+
+            car.Features = features;
+
+            await _repository.AddAsync(car);
+            await _repository.SaveAsync();
+
+            return Ok(_mapper.Map<CarSelectDto>(car));
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] GetAllCarsQuery query)
+        public override  async Task<IActionResult> GetAll([FromQuery] PaginationParams request)
         {
-            //var result = await _mediator.Send(new GetAllCarsQuery());
+            if (CurrentUserId == null)
+                return Unauthorized();
 
-            var result = await _mediator.Send(query);
+            var cars = await _repository
+                .GetQueryable()
+                .Where(c => c.UserId == CurrentUserId)
+                .Include(c => c.Features)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync();
 
-            return Ok(result);
+            return Ok(_mapper.Map<List<CarSelectDto>>(cars));
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public override async Task<IActionResult> GetById(int id)
         {
-            var result = await _mediator.Send(new GetCarByIdQuery { Id = id });
+            if (CurrentUserId == null)
+                return Unauthorized();
 
-            if (result == null)
+            var car = await _repository
+                .GetQueryable()
+                .FirstOrDefaultAsync(c =>
+                    c.Id == id &&
+                    c.UserId == CurrentUserId);
+
+            if (car == null)
                 return NotFound();
 
-            return Ok(result);
+            return Ok(_mapper.Map<CarSelectDto>(car));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateCarCommand command)
+        public override async Task<IActionResult> Update(int id, CarDto dto)
         {
-            if (id != command.Id)
-                return BadRequest("Id mismatch");
+            if (CurrentUserId == null)
+                return Unauthorized();
 
-            var result = await _mediator.Send(command);
+            var car = await _repository
+                .GetQueryable()
+                .Include(c => c.Features)
+                .FirstOrDefaultAsync(c =>
+                    c.Id == id &&
+                    c.UserId == CurrentUserId);
 
-            if (!result)
+            if (car == null)
                 return NotFound();
 
-            return Ok("Updated successfully");
+            car.Name = dto.Name;
+
+            car.Features.Clear();
+
+            var features = await _FeatureRepo
+                .GetQueryable()
+                .Where(f => dto.FeatureIds.Contains(f.Id))
+                .ToListAsync();
+
+            foreach (var f in features)
+                car.Features.Add(f);
+
+            await _repository.SaveAsync();
+
+            return Ok(_mapper.Map<CarSelectDto>(car));
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public override async Task<IActionResult> Delete(int id)
         {
-            var result = await _mediator.Send(new DeleteCarCommand { Id = id });
+            if (CurrentUserId == null)
+                return Unauthorized();
 
-            if (!result)
+            var car = await _repository
+                .GetQueryable()
+                .FirstOrDefaultAsync(c =>
+                    c.Id == id &&
+                    c.UserId == CurrentUserId);
+
+            if (car == null)
                 return NotFound();
 
-            return Ok("Deleted successfully");
+            _repository.Delete(car);
+            await _repository.SaveAsync();
+
+            return NoContent();
         }
     }
 }

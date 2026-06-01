@@ -1,6 +1,7 @@
 ﻿using _2.Application.Entities;
 using _2.Application.Repositories.Interfaces;
 using ArchitecutreMachin.Models.CarFeatures;
+using ArchitecutreMachins.Models.Pagination;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,23 +12,18 @@ using System.Security.Claims;
 namespace ArchitecutreMachin.Controllers
 {
     [Authorize]
-    public class CarFeatureController :
-        BaseController<CarFeature, CarFeatureDto, CarFeatureSelectDto>
-    {
-        private readonly IGenericRepository<Car> _carRepository;
-        public CarFeatureController(IGenericRepository<CarFeature> repository
+    public class CarFeatureController(IGenericRepository<CarFeature> repository
             , IGenericRepository<Car> carRepository,
-            IMapper mapper) : base(repository, mapper)
-        {
-            _carRepository = carRepository;
-
-        }
+        IMapper mapper) :
+        BaseController<CarFeature, CarFeatureDto, CarFeatureSelectDto>(repository, mapper)
+    {
+        private readonly IGenericRepository<Car> _carRepository = carRepository;
 
         private string? CurrentUserId =>
         User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         [HttpGet]
-        public override async Task<IActionResult> GetAll()
+        public override async Task<IActionResult> GetAll([FromQuery] PaginationParams request)
         {
             if (CurrentUserId == null)
                 return Unauthorized();

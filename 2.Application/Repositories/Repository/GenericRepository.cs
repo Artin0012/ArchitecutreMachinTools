@@ -10,16 +10,10 @@ using System.Threading.Tasks;
 
 namespace _3.Infrastructure.Services
 {
-    public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : BaseEntity
+    public class GenericRepository<TEntity>(ApplicationDbContext context) : IGenericRepository<TEntity> where TEntity : BaseEntity
     {
-        private readonly ApplicationDbContext _context;
-        private readonly DbSet<TEntity> _dbset;
-
-        public GenericRepository(ApplicationDbContext context)
-        {
-            _context = context;
-            _dbset = context.Set<TEntity>();
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly DbSet<TEntity> _dbset = context.Set<TEntity>();
 
         public async Task<List<TEntity>> GetAllAsync()
             => await _dbset.ToListAsync();

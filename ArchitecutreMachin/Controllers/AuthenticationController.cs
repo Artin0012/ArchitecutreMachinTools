@@ -9,21 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchitecutreMachin.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class AuthenticationController : ControllerBase
+    [Route("api/[controller]/[action]")]
+    public class AuthenticationController(UserManager<User> userManager, JwtService jwt, RoleManager<IdentityRole> roleManager) : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
-        private readonly JwtService _jwt;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<User> _userManager = userManager;
+        private readonly JwtService _jwt = jwt;
+        private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
-        public AuthenticationController(UserManager<User> userManager, JwtService jwt, RoleManager<IdentityRole> roleManager)
-        {
-            _userManager = userManager;
-            _jwt = jwt;
-            _roleManager = roleManager;
-        }
-
-        [HttpPost("register")]
+        [HttpPost]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
             var user = new User

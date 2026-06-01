@@ -1,5 +1,6 @@
 ﻿using _2.Application.Entities;
 using _2.Application.Repositories.Interfaces;
+using ArchitecutreMachins.Models.Pagination;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -8,20 +9,14 @@ namespace ArchitecutreMachin.Controllers
 {
     [ApiController]
     [Route("api/[Controller]")]
-    public class BaseController<TEntity, TDto, TSelectDto> : ControllerBase
+    public class BaseController<TEntity, TDto, TSelectDto>(IGenericRepository<TEntity> repository, IMapper mapper) : ControllerBase
         where TEntity : BaseEntity
     {
-        protected readonly IGenericRepository<TEntity> _repository;
-        protected readonly IMapper _mapper;
-
-        public BaseController(IGenericRepository<TEntity> repository, IMapper mapper)
-        {
-            _repository = repository;
-            _mapper = mapper;
-        }
+        protected readonly IGenericRepository<TEntity> _repository = repository;
+        protected readonly IMapper _mapper = mapper;
 
         [HttpGet]
-        public virtual async Task<IActionResult> GetAll()
+        public virtual async Task<IActionResult> GetAll([FromQuery] PaginationParams request)
         {
             var entitys = await _repository.GetAllAsync();
             var result = _mapper.Map<List<TSelectDto>>(entitys);
