@@ -8,6 +8,6 @@ namespace ArchitecutreMachin.Models.CarFeatures
         public string Title { get; set; }
         public int Rank { get; set; }
         public int HealthyBody { get; set; }
-        public int CarId { get; set; }
+
     }
 }

@@ -14,7 +14,7 @@ using ArchitecutreMachins.Models.Pagination;
 namespace ArchitecutreMachin.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
     public class CarController(IGenericRepository<Car> repository, IMapper mapper, IGenericRepository<CarFeature> featureRepo) :
         BaseController<Car, CarDto, CarSelectDto>(repository, mapper)

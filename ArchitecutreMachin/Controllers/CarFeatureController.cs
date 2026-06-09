@@ -11,11 +11,13 @@ using System.Security.Claims;
 
 namespace ArchitecutreMachin.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]/[action]")]
     [Authorize]
     public class CarFeatureController(IGenericRepository<CarFeature> repository
-            , IGenericRepository<Car> carRepository,
-        IMapper mapper) :
-        BaseController<CarFeature, CarFeatureDto, CarFeatureSelectDto>(repository, mapper)
+                , IGenericRepository<Car> carRepository,
+            IMapper mapper) :
+            BaseController<CarFeature, CarFeatureDto, CarFeatureSelectDto>(repository, mapper)
     {
         private readonly IGenericRepository<Car> _carRepository = carRepository;
 

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchitecutreMachin.Controllers
 {
     [ApiController]
-    [Route("api/[Controller]")]
+    [Route("api/[controller]/[action]")]
     public class BaseController<TEntity, TDto, TSelectDto>(IGenericRepository<TEntity> repository, IMapper mapper) : ControllerBase
         where TEntity : BaseEntity
     {

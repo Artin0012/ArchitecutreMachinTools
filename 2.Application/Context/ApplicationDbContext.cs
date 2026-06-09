@@ -10,15 +10,10 @@ using System.Threading.Tasks;
 
 namespace _2.Application.Context
 {
-    public class ApplicationDbContext : IdentityDbContext<User>
-    {
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User>(options)
+    {   
       public  DbSet<Car> Cars { get; set; }
       public  DbSet<CarFeature> Features { get; set; }
-
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        {
-
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -2,6 +2,5 @@
   <Project Path="1.Domain/1.Domain.csproj" Id="31e404eb-aefc-4a65-8bed-1a5594d03aaa" />
   <Project Path="2.Application/2.Application.csproj" Id="e9f8eac9-ba74-4e76-97a2-de059e1d7c3f" />
   <Project Path="3.Infrastructure/3.Infrastructure.csproj" Id="22dad10e-ee4d-4684-92df-5728bb6a087f" />
-  <Project Path="4.ArchitectureMachine.Tests/4.ArchitectureMachine.Tests.csproj" Id="3efbfa30-4003-4eff-bb79-14c832a728bd" />
   <Project Path="ArchitecutreMachin/ArchitecutreMachins.csproj" />
 </Solution>

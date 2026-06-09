@@ -1,6 +1,5 @@
 ﻿using _2.Application.Entities;
 using _2.Application.Repositories.Interfaces;
-using ArchitecutreMachins.Features.Commands.CreateCars;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualBasic;
